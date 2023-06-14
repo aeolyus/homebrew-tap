@@ -6,21 +6,21 @@ CONTAINER_TAP_PATH ?= /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/aeolyus/h
 default: help
 
 brew-shell: ## Interactive container with brew installed
-	docker run --rm -itv .:$(CONTAINER_TAP_PATH) $(IMAGE) bash
+	docker run --rm -itv $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) bash
 
 test: ## Run brew audit on the formula in a docker container
-	docker run --rm -v .:$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
+	docker run --rm -v $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
 		"brew untap homebrew/core \
 		&& brew tap-info $(TAP) --json \
 		| jq -r '.[]|(.formula_names[],.cask_tokens[])' \
-		| xargs -n1 brew audit --strict --online"
+		| xargs -n1 brew audit --verbose --strict --online"
 
 test-install: ## Test install inside a homebrew docker container
-	docker run --rm -v .:$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
+	docker run --rm -v $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
 		"brew untap homebrew/core \
 		&& brew tap-info $(TAP) --json \
 		| jq -r '.[]|(.formula_names[],.cask_tokens[])' \
-		| xargs brew install"
+		| xargs brew install --verbose"
 
 help: Makefile ## Print this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \

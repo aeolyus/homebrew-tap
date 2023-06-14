@@ -1,0 +1,28 @@
+name: Audit and test install
+
+on: [push, pull_request]
+
+jobs:
+  audit-test:
+    name: "Verify ${{ matrix.formula }}"
+
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        formula:
+          - pastry.rb
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Audit
+        run: brew audit --verbose --strict --online --git --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula}}
+
+      - name: Style
+        run: brew style --verbose --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula}}
+
+      - name: Test install
+        run: brew install --verbose --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula }}
