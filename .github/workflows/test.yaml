@@ -4,25 +4,19 @@ on: [push, pull_request]
 
 jobs:
   audit-test:
-    name: "Verify ${{ matrix.formula }}"
-
-    runs-on: macos-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        formula:
-          - pastry.rb
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Audit
-        run: brew audit --verbose --strict --online --git --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula}}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-      - name: Style
-        run: brew style --verbose --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula}}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Audit
+        run: make test
 
       - name: Test install
-        run: brew install --verbose --formula $GITHUB_WORKSPACE/Formula/${{ matrix.formula }}
+        run: make test-install
