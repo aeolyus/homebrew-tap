@@ -1,25 +1,23 @@
 IMAGE ?= homebrew/brew:latest
 TAP ?= aeolyus/tap
-CONTAINER_TAP_PATH ?= /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/aeolyus/homebrew-tap
+TAP_PATH ?= /home/linuxbrew/$(TAP)
 
 .PHONY: test testinstall help
 default: help
 
 brew-shell: ## Interactive container with brew installed
-	docker run --rm -itv $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) bash
+	docker run --rm -itv $$(pwd):$(TAP_PATH) $(IMAGE) bash
 
 test: ## Run brew audit on the formula in a docker container
-	docker run --rm -v $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
+	docker run --rm -v $$(pwd):$(TAP_PATH) $(IMAGE) sh -c \
 		"brew untap homebrew/core \
-		&& brew tap-info $(TAP) --json \
-		| jq -r '.[]|(.formula_names[],.cask_tokens[])' \
-		| xargs -n1 brew audit --verbose --strict --online"
+		&& (ls $(TAP_PATH)/Formula/*.rb || ls $(TAP_PATH)/*.rb) \
+		| xargs -n1 brew audit --verbose --strict --online --formula"
 
 test-install: ## Test install inside a homebrew docker container
-	docker run --rm -v $$(pwd):$(CONTAINER_TAP_PATH) $(IMAGE) sh -c \
+	docker run --rm -v $$(pwd):$(TAP_PATH) $(IMAGE) sh -c \
 		"brew untap homebrew/core \
-		&& brew tap-info $(TAP) --json \
-		| jq -r '.[]|(.formula_names[],.cask_tokens[])' \
+		&& (ls $(TAP_PATH)/Formula/*.rb || ls $(TAP_PATH)/*.rb) \
 		| xargs brew install --verbose"
 
 help: Makefile ## Print this help
