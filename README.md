@@ -5,6 +5,6 @@ of formulae that can be installed using `brew`. You can learn more
 
 ## Installation
 ```
-brew install aeolyus/tap/$FORMULA
+brew tap aeolyus/tap
+brew install $FORMULA
 ```
-Or `brew tap aeolyus/tap` and then `brew install $FORMULA`.
